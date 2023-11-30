@@ -1,0 +1,60 @@
+import random
+
+while True:
+    domino_pot = []
+    t = 0
+    for i in range(0, 7):
+        for n in range(t, 7):
+            domino_pot.append([i, n])
+        t += 1
+
+    stock = []
+    player = []
+    computer = []
+    random.shuffle(domino_pot)
+
+    for i in range(28):
+        if len(player) <= len(computer) and len(player) <= 6:
+            player.append(domino_pot[i])
+        elif len(computer) <= len(stock) and len(computer) <= 6:
+            computer.append(domino_pot[i])
+        else:
+            stock.append(domino_pot[i])
+
+    play1 = []
+    comp2 = []
+    starter = ()
+    for i in range(6, -1, -1):
+        if [i, i] in player:
+            play1.append(t)
+            #  print(t, player.index([t, t]), 'player')
+        if [i, i] in computer:
+            comp2.append(t)
+            #  print(t, computer.index([t, t]), 'computer')
+        if play1 > comp2 or comp2 is []:
+            starter = (i, player.index([i, i]), 'player')
+            break
+        elif play1 < comp2 or play1 is []:
+            starter = (i, computer.index([i, i]), 'computer')
+            break
+
+    status = str()
+    snake = []
+    if starter == ():
+        continue
+    elif starter[2] == 'player':
+        player.pop(starter[1])
+        status = 'computer'
+        snake.append([starter[0], starter[0]])
+        break
+    else:
+        computer.pop(starter[1])
+        status = 'player'
+        snake.append([starter[0], starter[0]])
+        break
+
+print(f'Stock pieces: {stock}')
+print(f'Computer pieces:{computer}')
+print(f'Player pieces:{player}')
+print(f'Domino snake: {snake}')
+print(f'Status: {status}')
