@@ -1,0 +1,184 @@
+import random
+
+
+class Dominos:
+    domino_pot = [[i, j] for i in range(7) for j in range(i, 7)]
+    random.shuffle(domino_pot)
+    player = domino_pot[0:7]
+    player.sort()
+    computer = domino_pot[21:28]
+    random.shuffle(computer)
+    stock = domino_pot[7:21]
+    random.shuffle(stock)
+    snake = []
+    turn = 0
+    enter = str()
+    lst = ['Computer is about to make a move. Press Enter to continue...',
+           "It's your turn to make a move. Enter your command."]
+
+    def __int__(self, player, computer, stock):
+        self.player = player
+        self.stock = stock
+        self.computer = computer
+
+    def first_move(self):
+        for i in range(6, -1, -1):
+            if [i, i] in self.player:
+                self.player.pop(self.player.index([i, i]))
+                Dominos.snake.append([i, i])
+                Dominos.turn = 0
+                break
+            if [i, i] in self.computer:
+                self.computer.pop(self.computer.index([i, i]))
+                Dominos.snake.append([i, i])
+                Dominos.turn = 1
+                break
+
+    def moves(self):
+        if Dominos.turn == 0:
+            while True:
+                num = random.randint(-len(self.computer) + 1, len(self.computer) - 1)
+                if num > 0:
+                    if Dominos.snake[-1][1] in self.computer[num]:
+                        if Dominos.snake[-1][1] != self.computer[num][0]:
+                            self.computer[num] = self.computer[num][::-1]
+                            Dominos.snake.append(self.computer[num])
+                            self.computer.remove(self.computer[num])
+                            break
+                        else:
+                            Dominos.snake.append(self.computer[num])
+                            self.computer.remove(self.computer[num])
+                        break
+                elif num < 0:
+                    if Dominos.snake[0][0] in self.computer[abs(num)]:
+                        if Dominos.snake[0][0] != self.computer[abs(num)][1]:
+                            self.computer[num] = self.computer[abs(num)][::-1]
+                            Dominos.snake.insert(0, self.computer[abs(num)])
+                            self.computer.remove(self.computer[abs(num)])
+                            break
+                        else:
+                            Dominos.snake.insert(0, self.computer[abs(num)])
+                            self.computer.remove(self.computer[abs(num)])
+                        break
+                elif num == 0 and bool(self.stock):
+                    random.shuffle(self.stock)
+                    num = random.randint(0, len(self.stock) - 1)
+                    self.computer.append(self.stock[num])
+                    random.shuffle(self.computer)
+                    self.stock.remove(self.stock[num])
+                    random.shuffle(self.stock)
+                    break
+                elif num == 0 and not bool(self.stock):
+                    break
+                else:
+                    continue
+        else:
+            if int(Dominos.enter) > 0:
+                Dominos.snake.append(self.player[int(Dominos.enter) - 1])
+                self.player.remove(self.player[abs(int(Dominos.enter)) - 1])
+            elif int(Dominos.enter) < 0:
+                Dominos.snake.insert(0, self.player[abs(int(Dominos.enter)) - 1])
+                self.player.remove(self.player[abs(int(Dominos.enter)) - 1])
+            elif int(Dominos.enter) == 0 and bool(self.stock):
+                random.shuffle(self.stock)
+                num = random.randint(0, len(self.stock) - 1)
+                self.player.append(self.stock[num])
+                self.player.sort()
+                self.stock.remove(self.stock[num])
+            elif int(Dominos.enter) == 0 and not bool(self.stock):
+                pass
+        Dominos.turn = 1 - Dominos.turn
+
+    def input_test(self):
+        if Dominos.turn == 0:
+            input()
+        else:
+            while True:
+                Dominos.enter = input()
+                try:
+                    int(Dominos.enter)
+                except ValueError:
+                    print('Invalid input. Please try again.')
+                    continue
+                if 0 < int(Dominos.enter) <= len(self.player):
+                    if self.snake[-1][1] in self.player[int(Dominos.enter) - 1]:
+                        if self.player[int(Dominos.enter) - 1][0] != self.snake[-1][1]:
+                            self.player[int(Dominos.enter) - 1] = self.player[int(Dominos.enter) - 1][::-1]
+                        break
+                    else:
+                        print('Illegal move. Please try again.')
+                        continue
+                elif -len(self.player) <= int(Dominos.enter) < 0:
+                    if self.snake[0][0] in self.player[abs(int(Dominos.enter)) - 1]:
+                        if self.player[abs(int(Dominos.enter)) - 1][1] != self.snake[0][0]:
+                            self.player[abs(int(Dominos.enter)) - 1] = self.player[abs(int(Dominos.enter)) - 1][::-1]
+                        break
+                    else:
+                        print('Illegal move. Please try again.')
+                        continue
+                elif int(Dominos.enter) == 0 and bool(self.stock):
+                    break
+                elif int(Dominos.enter) == 0 and not bool(self.stock):
+                    break
+                else:
+                    print('Invalid input. Please try again.')
+                    continue
+
+    def end_game(self):
+        if len(self.player) == 0:
+            Dominos.prt_end(self)
+            print('\nStatus: The game is over. You won!')
+            return 1
+        elif len(self.computer) == 0:
+            Dominos.prt_end(self)
+            print('\nStatus: The game is over. The computer won!')
+            return 1
+        elif self.snake[0][0] == self.snake[-1][1]:
+            counter = 0
+            for i in self.snake:
+                for n in i:
+                    if self.snake[0][0] == n:
+                        counter += 1
+            if counter >= 8:
+                Dominos.prt_end(self)
+                print("\nStatus: The game is over. It's a draw!")
+                return 1
+
+    def prt_end(self):
+        print('=' * 70)
+        print(f'Stock size: {len(self.stock)}')
+        print(f'Computer pieces: {len(self.computer)}\n')
+        if len(self.snake) <= 6:
+            print(*self.snake)
+        else:
+            print(f'{self.snake[0]}{self.snake[1]}{self.snake[2]}...'
+                  f'{self.snake[-3]}{self.snake[-2]}{self.snake[-1]}')
+        print(f'\nPlayer pieces:')
+        for n, play in enumerate(self.player, start=1):
+            print(f'{n}:{play}')
+
+    def prt(self):
+        print('=' * 70)
+        print(f'Stock size: {len(self.stock)}')
+        print(f'Computer pieces: {len(self.computer)}\n')
+        if len(self.snake) <= 6:
+            print(*self.snake)
+        else:
+            print(f'{self.snake[0]}{self.snake[1]}{self.snake[2]}...'
+                  f'{self.snake[-3]}{self.snake[-2]}{self.snake[-1]}')
+        print(f'\nPlayer pieces:')
+        for n, play in enumerate(self.player, start=1):
+            print(f'{n}:{play}')
+        print(f'\nStatus: {Dominos.lst[Dominos.turn]}')
+        Dominos.input_test(self)
+
+
+game = Dominos()
+game.first_move()
+game.prt()
+
+while True:
+    game.moves()
+    if game.end_game() == 1:
+        break
+    game.prt()
